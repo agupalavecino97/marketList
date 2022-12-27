@@ -1,37 +1,26 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
+import { helpHttp } from '../helpers/helpHttp';
 import CrudForm from './CrudFrom';
 import CrudTable from './CrudTable';
 
-const initialDb = [
-    {
-        id: 1,
-        name: 'Seiya',
-        constellation: 'Pegasso',
-    },
-    {
-        id: 2,
-        name: 'Shiryu',
-        constellation: 'Dragon',
-    },
-    {
-        id: 3,
-        name: 'Hyoga',
-        constellation: 'Cisne',
-    },
-    {
-        id: 4,
-        name: 'Shun',
-        constellation: 'Andromeda',
-    },
-    {
-        id: 5,
-        name:'Ikki',
-        constellation: 'Fenix',
-    },
-]
+
 const CrudApp = () => {
-    const [db, setDb] = useState(initialDb);
+    const [db, setDb] = useState([]);
     const [dataToEdit, setDataToEdit] = useState(null);
+
+    let api = helpHttp();
+    let url = "http://localhost:5000/santos";
+
+    useEffect(() => {
+        api.get(url).then( res => {
+            if (!res.err) {
+                setDb(res)
+            } else {
+                setDb([])
+            }
+        });
+    }, []); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez 
+
 
     const createData = (data) => {
         data.id = Date.now();
@@ -68,7 +57,7 @@ const CrudApp = () => {
                     setDataToEdit={setDataToEdit}
                     deleteData={deleteData}
                 />
-            </article>
+            </article> 
         </div>
     );
 }
