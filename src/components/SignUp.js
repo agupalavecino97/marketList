@@ -1,4 +1,5 @@
 import * as React from 'react';
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,19 +12,65 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
+import { APIs } from '../helpers/apis';
+import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
 
 const theme = createTheme();
+const initialForm = {
+  name: "",
+  email: "",
+  password: "",
+}
 
 export default function SignUp() {
     const navigate = useNavigate();
+    const [form, setForm ] = useState(initialForm);
+    const [open, setOpen] = useState(false);
+    const [typeAlert, setTypeAlert] = useState("");
+    const [message, setMessage] = useState("");
 
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-        email: data.get('email'),
-        password: data.get('password'),
-        });
+    const handleOpenAlert = (type, message) => {
+      setTypeAlert(type);
+      setMessage(message);
+      setOpen(true);
+    };
+  
+    const handleCloseAlert = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setOpen(false);
+    };
+
+    const handleSubmit = async () => {
+      
+      if (!form.email || !form.password || !form.name) {
+        handleOpenAlert('error', 'Datos incompletos');
+        return;
+      }
+      try {
+        const res = await axios.post(APIs.REGISTRO, form);
+        if (res.data.error) {
+          handleOpenAlert('error', res.data.error);
+        } else {
+          if (res.data.data) {
+            handleOpenAlert('success', 'Registro exitoso');
+          } else {
+            handleOpenAlert('error', 'Error en el servidor');
+          }
+        }
+        // if (res.data.token) {
+        //     axios.defaults.headers.common.Authorization = 'bearer ' + res.data.token;
+        //     localStorage.setItem('token', res.data.token);
+        //     this.setState({ redirectToDashboard: true });
+        // } else {
+        //     this.setState({ error: true });
+        // }
+      } catch (err) {
+          console.error(err);
+      }
     };
 
     const styles = {
@@ -74,6 +121,13 @@ export default function SignUp() {
     navigate('/');
   }
 
+  const handleChange = (e) => { 
+    setForm({ 
+        ...form,
+        [e.target.name]:e.target.value 
+    });
+  };
+
   return (
     <ThemeProvider theme={theme}>
       <Container component="main" maxWidth="xs">
@@ -99,54 +153,66 @@ export default function SignUp() {
           <Typography component="h1" variant="h5">
             Registro
           </Typography>
-          <Box component="form" noValidate onSubmit={handleSubmit} sx={{ mt: 3 }}>
-            <Grid container spacing={2}>
-              <Grid item xs={12}>
-                <TextField
-                  autoComplete="given-name"
-                  name="firstName"
-                  required
-                  fullWidth
-                  id="firstName"
-                  label="Nombre y Apellido"
-                  autoFocus
-                />
+          <Box component="form" noValidate sx={{ mt: 3 }}>  
+              <Grid container spacing={2}>
+                <Grid item xs={12}>
+                  <TextField
+                    autoComplete="given-name"
+                    name="name"
+                    required
+                    fullWidth
+                    id="name"
+                    label="Nombre y Apellido"
+                    autoFocus
+                    value={form.name}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    id="email"
+                    label="Email"
+                    name="email"
+                    autoComplete="email"
+                    value={form.email}
+                    onChange={handleChange}
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    required
+                    fullWidth
+                    name="password"
+                    label="Contraseña"
+                    type="password"
+                    id="password"
+                    autoComplete="new-password"
+                    value={form.password}
+                    onChange={handleChange}
+                  />
+                </Grid>
               </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  id="email"
-                  label="Email"
-                  name="email"
-                  autoComplete="email"
-                />
-              </Grid>
-              <Grid item xs={12}>
-                <TextField
-                  required
-                  fullWidth
-                  name="password"
-                  label="Contraseña"
-                  type="password"
-                  id="password"
-                  autoComplete="new-password"
-                />
-              </Grid>
-            </Grid>
-            <Button
-              type="submit"
-              fullWidth
-              variant="contained"
-              sx={styles.btn}
-            >
-              Registro
-            </Button>
+              <Button
+                type="button"
+                fullWidth
+                variant="contained"
+                sx={styles.btn}
+                onClick={handleSubmit}
+              >
+                Registro
+              </Button>
             <Grid container justifyContent="center">
                 <Link onClick={toLogin} variant="body2">
                   ¿Ya tienes una cuenta? Ingresar
                 </Link>
             </Grid>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleCloseAlert}>
+                <Alert onClose={handleCloseAlert} severity={typeAlert} sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
           </Box>
         </Box>
       </Container>

@@ -1,4 +1,5 @@
 import React from 'react';
+import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
 import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
@@ -11,17 +12,66 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import LoginIcon from '@mui/icons-material/Login';
+import { APIs } from '../helpers/apis';
+import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
+const initialForm = {
+  email: "",
+  password: "",
+}
 
 const Login = () => {
     const theme = createTheme();
     const navigate = useNavigate();
-    const handleSubmit = (event) => {
-        event.preventDefault();
-        const data = new FormData(event.currentTarget);
-        console.log({
-        email: data.get('email'),
-        password: data.get('password'),
-        });
+    const [form, setForm ] = useState(initialForm);
+    const [open, setOpen] = useState(false);
+    const [typeAlert, setTypeAlert] = useState("");
+    const [message, setMessage] = useState("");
+
+    const handleOpenAlert = (type, message) => {
+      setTypeAlert(type);
+      setMessage(message);
+      setOpen(true);
+    };
+  
+    const handleCloseAlert = (event, reason) => {
+        if (reason === 'clickaway') {
+          return;
+        }
+        setOpen(false);
+    };
+
+    const handleSubmit = async () => {
+      if (!form.email || !form.password) {
+        handleOpenAlert('error', 'Datos incompletos');
+        return;
+      }
+      try {
+        const res = await axios.post(APIs.LOGIN, form);
+        console.log(res);
+        if (res.data.error) {
+          handleOpenAlert('error', res.data.error);
+        } else {
+          if (res.data.data) {
+            console.log(res.data);
+            handleOpenAlert('success', 'Login exitoso');
+            navigate('/');
+          } else {
+            handleOpenAlert('error', 'Error en el servidor');
+          }
+        }
+        // if (res.data.token) {
+        //     axios.defaults.headers.common.Authorization = 'bearer ' + res.data.token;
+        //     localStorage.setItem('token', res.data.token);
+        //     this.setState({ redirectToDashboard: true });
+        // } else {
+        //     this.setState({ error: true });
+        // }
+      } catch (err) {
+          console.error(err);
+      }
     };
 
     const toRegister = () => {
@@ -31,6 +81,13 @@ const Login = () => {
     const toHome = () => {
       navigate('/');
     }
+
+    const handleChange = (e) => { 
+      setForm({ 
+          ...form,
+          [e.target.name]:e.target.value 
+      });
+    };
 
     const styles = {
       btn: {
@@ -97,7 +154,7 @@ const Login = () => {
             <Typography component="h1" variant="h5">
               Login
             </Typography>
-            <Box component="form" onSubmit={handleSubmit} noValidate sx={{ mt: 1 }}>
+            <Box component="form" noValidate sx={{ mt: 1 }}>
               <TextField
                 margin="normal"
                 required
@@ -107,6 +164,8 @@ const Login = () => {
                 name="email"
                 autoComplete="email"
                 autoFocus
+                value={form.email}
+                onChange={handleChange}
               />
               <TextField
                 margin="normal"
@@ -117,12 +176,15 @@ const Login = () => {
                 type="password"
                 id="password"
                 autoComplete="current-password"
+                value={form.password}
+                onChange={handleChange}
               />
               <Button
-                type="submit"
+                type="button"
                 fullWidth
                 variant="contained"
                 sx={styles.btn}
+                onClick={handleSubmit}
               >
                 Ingresar
               </Button>
@@ -132,6 +194,11 @@ const Login = () => {
                   </Link>
               </Grid>
             </Box>
+            <Snackbar open={open} autoHideDuration={6000} onClose={handleCloseAlert}>
+                <Alert onClose={handleCloseAlert} severity={typeAlert} sx={{ width: '100%' }}>
+                    {message}
+                </Alert>
+            </Snackbar>
           </Box>
         </Container>
       </ThemeProvider>
