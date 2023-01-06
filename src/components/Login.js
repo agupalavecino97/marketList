@@ -16,6 +16,7 @@ import { APIs } from '../helpers/apis';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
+// import * as moment from "react-moment";
 
 const initialForm = {
   email: "",
@@ -55,8 +56,10 @@ const Login = () => {
           handleOpenAlert('error', res.data.error);
         } else {
           if (res.data.data) {
-            console.log(res.data);
-            handleOpenAlert('success', 'Login exitoso');
+            localStorage.setItem("token", res.data.data.accessToken);
+            // const expiresAt = moment().add(res.data.data.expiresIn, 'second');
+            // localStorage.setItem("EXPIRES_IN", JSON.stringify(expiresAt.valueOf()));
+            localStorage.setItem("user", res.data.data.user);
             navigate('/');
           } else {
             handleOpenAlert('error', 'Error en el servidor');

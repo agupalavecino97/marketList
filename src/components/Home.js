@@ -1,12 +1,12 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 // import Footer from "./components/Footer";
 import Header from "./Header";
 import NewList from "./NewList";
 import Grid from '@mui/material/Grid';
 import Fab from '@mui/material/Fab';
-
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
+
 const Home = () => {
 
     const styles = {
@@ -49,21 +49,41 @@ const Home = () => {
     };
     
     const [currentList, setCurrentList] = useState([]);
+    const [currentUser, setCurrentUser] = useState("");
+
+    useEffect(() => {
+        let authToken = localStorage.getItem('token');
+        if (authToken !== null && authToken !== undefined) {
+            // const expiration = localStorage.getItem("EXPIRES_IN");
+            // const expiresAt = JSON.parse(expiration);
+            // if (moment().isBefore(moment(expiresAt))) {
+                setCurrentUser(localStorage.getItem('user'))
+            // } else {
+                // setCurrentUser("")
+            // }
+        } else {
+            setCurrentUser("")
+        }
+    }); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez 
 
     return (
         <main style={{height: '100vh', background: '#F5F2EB'}}>
-            <Header/>
+            <Header currentUser={currentUser} />
             <NewList list={currentList} setCurrentList={setCurrentList}/>
             <Grid item xs={12}>
                 {
-                    currentList.length > 0 &&
+                    (currentList.length > 0 && currentUser !== '') &&
                     <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat}>
                         Guardar Lista <LibraryAddIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
-                <Fab sx={{ position: 'absolute', bottom: 16, left: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat}>
-                    Mis listas <ListAltSharpIcon sx={{ ml: 1 }}/>
-                </Fab>
+                { 
+                    currentUser !== '' && 
+                    <Fab sx={{ position: 'absolute', bottom: 16, left: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat}>
+                        Mis listas <ListAltSharpIcon sx={{ ml: 1 }}/>
+                    </Fab>
+                }
+               
             </Grid>
         </main>
     );

@@ -5,9 +5,11 @@ import LocalGroceryStoreIcon from '@mui/icons-material/LocalGroceryStore';
 import Typography from '@mui/material/Typography';
 import LoginIcon from '@mui/icons-material/Login';
 import Button from '@mui/material/Button';
+import Chip from '@mui/material/Chip';
 import { useNavigate } from 'react-router-dom';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 
-export default function Header () {
+export default function Header ({currentUser}) {
   const navigate = useNavigate();
   
   const styles = {
@@ -62,7 +64,17 @@ export default function Header () {
           <Typography variant="h6" color="inherit" noWrap>
             Lista de Super
           </Typography>
-          <Button onClick={toLogin} sx={styles.btn} variant="contained" endIcon={<LoginIcon/>}> Login </Button>
+          {
+            currentUser === '' ? 
+            <Button onClick={toLogin} sx={styles.btn} variant="contained" endIcon={<LoginIcon/>}> Login </Button>
+            :
+            <Chip
+              sx={styles.btn}
+              label={currentUser}
+              // variant="outlined"
+              avatar={<AccountCircleIcon sx={{color: '#eee !important'}} />}
+            />
+          }
         </Toolbar>
       </AppBar>
     );
