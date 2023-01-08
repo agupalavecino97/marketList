@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 // import Footer from "./components/Footer";
 import Header from "./Header";
 import NewList from "./NewList";
+import SaveList from './SaveList';
 import Grid from '@mui/material/Grid';
 import Fab from '@mui/material/Fab';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
@@ -50,6 +51,7 @@ const Home = () => {
     
     const [currentList, setCurrentList] = useState([]);
     const [currentUser, setCurrentUser] = useState("");
+    const [openModal, setOpenModal] = useState(false);
 
     useEffect(() => {
         let authToken = localStorage.getItem('token');
@@ -66,6 +68,18 @@ const Home = () => {
         }
     }); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez 
 
+
+    const handleOpenModal = () => {
+        setOpenModal(true);
+    }
+
+    const handleCloseModal = () => {
+        setOpenModal(false);
+    }
+
+     const onSaveList = (data) => {
+
+    }
     return (
         <main style={{height: '100vh', background: '#F5F2EB'}}>
             <Header currentUser={currentUser} />
@@ -73,7 +87,7 @@ const Home = () => {
             <Grid item xs={12}>
                 {
                     (currentList.length > 0 && currentUser !== '') &&
-                    <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat}>
+                    <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleOpenModal}>
                         Guardar Lista <LibraryAddIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
@@ -83,7 +97,7 @@ const Home = () => {
                         Mis listas <ListAltSharpIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
-               
+                <SaveList open={openModal} onSaveList={() => onSaveList} handleClose={handleCloseModal}/>
             </Grid>
         </main>
     );
