@@ -7,6 +7,17 @@ import Grid from '@mui/material/Grid';
 import Fab from '@mui/material/Fab';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
 import ListAltSharpIcon from '@mui/icons-material/ListAltSharp';
+import { APIs } from '../helpers/apis';
+import axios from 'axios';
+import Snackbar from '@mui/material/Snackbar';
+import Alert from '@mui/material/Alert';
+
+const initialListData = {
+    id: null,
+    nombre: "",
+    precio: 100,
+    estado: 0
+}
 
 const Home = () => {
 
@@ -52,6 +63,11 @@ const Home = () => {
     const [currentList, setCurrentList] = useState([]);
     const [currentUser, setCurrentUser] = useState("");
     const [openModal, setOpenModal] = useState(false);
+    const [listData, setlistData ] = useState(initialListData);
+    const [showLists, setShowLists] = useState(false);
+    const [open, setOpen] = useState(false);
+    const [typeAlert, setTypeAlert] = useState("");
+    const [message, setMessage] = useState("");
 
     useEffect(() => {
         let authToken = localStorage.getItem('token');
@@ -68,6 +84,18 @@ const Home = () => {
         }
     }); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez 
 
+    const handleOpenAlert = (type, message) => {
+        setTypeAlert(type);
+        setMessage(message);
+        setOpen(true);
+      };
+    
+      const handleCloseAlert = (event, reason) => {
+          if (reason === 'clickaway') {
+            return;
+          }
+          setOpen(false);
+      };
 
     const handleOpenModal = () => {
         setOpenModal(true);
@@ -77,13 +105,41 @@ const Home = () => {
         setOpenModal(false);
     }
 
-     const onSaveList = (data) => {
+     const onSaveList = async () => {
+        handleCloseModal();
+        try {
+            let data = {
+                lista: listData,
+                items: currentList
+            }
+            axios.defaults.headers.common.Authorization = localStorage.getItem('token');
+            const res = await axios.post(APIs.LISTA, data);
+            if (res.data.error) {
+              handleOpenAlert('error', res.data.error);
+            } else {
+              if (res.data.message) {
+                handleOpenAlert('warning', res.data.message);
+              } else {
+                if (res.data.data) {
+                    handleOpenAlert('success', 'Lista guardada correctamente');
+                    setlistData({ ...currentList, id: res.data.data})
 
+                } else {
+                    handleOpenAlert('error', 'Error en el servidor');                    
+                }
+              }
+            }
+          } catch (err) {
+              console.error(err);
+          }
     }
     return (
         <main style={{height: '100vh', background: '#F5F2EB'}}>
             <Header currentUser={currentUser} />
-            <NewList list={currentList} setCurrentList={setCurrentList}/>
+            {
+                !showLists &&
+                <NewList list={currentList} setCurrentList={setCurrentList}/>
+            }
             <Grid item xs={12}>
                 {
                     (currentList.length > 0 && currentUser !== '') &&
@@ -97,7 +153,12 @@ const Home = () => {
                         Mis listas <ListAltSharpIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
-                <SaveList open={openModal} onSaveList={() => onSaveList} handleClose={handleCloseModal}/>
+                <SaveList open={openModal} handleSaveList={onSaveList} handleClose={handleCloseModal} listData={listData} setlistData={setlistData}/>
+                 <Snackbar open={open} autoHideDuration={6000} onClose={handleCloseAlert}>
+                    <Alert onClose={handleCloseAlert} severity={typeAlert} sx={{ width: '100%' }}>
+                        {message}
+                    </Alert>
+                </Snackbar>
             </Grid>
         </main>
     );

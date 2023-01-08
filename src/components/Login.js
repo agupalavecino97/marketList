@@ -66,7 +66,6 @@ const Login = () => {
           }
         }
         // if (res.data.token) {
-        //     axios.defaults.headers.common.Authorization = 'bearer ' + res.data.token;
         //     localStorage.setItem('token', res.data.token);
         //     this.setState({ redirectToDashboard: true });
         // } else {

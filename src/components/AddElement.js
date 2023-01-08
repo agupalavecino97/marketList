@@ -7,8 +7,9 @@ import Alert from '@mui/material/Alert';
 
 const initialForm = {
     id: null,
-    value: "",
-    checked: false,
+    valor: "",
+    estado: 0,
+    id_lista: null,
 }
 
 const AddElement = ({handleAddElement}) => {
@@ -37,7 +38,7 @@ const AddElement = ({handleAddElement}) => {
     const handleAdd = (e) => { 
         e.preventDefault(); //para que no se autoprocese el formulario
         
-        if (form.value === "") {
+        if (form.valor === "") {
             handleOpenAlert();
             return;
         }
@@ -60,8 +61,8 @@ const AddElement = ({handleAddElement}) => {
             <Input
                 placeholder="Agregar un elemento"
                 inputProps={{ "aria-label": "Description" }}
-                value={form.value}
-                name="value"
+                value={form.valor}
+                name="valor"
                 onChange={handleChange}
                 style={{ width: "90%",  height: "4em" }}
             />

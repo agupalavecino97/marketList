@@ -62,7 +62,7 @@ export default function NewList ({list, setCurrentList}) {
     }
     
     const handleToggle = (newItem) => {
-        newItem.checked = !newItem.checked;
+        newItem.estado === 0 ? newItem.estado = 1 : newItem.estado = 0;
         // let newItems = items.map( item => item.id === newItem.id ? newItem : item);
         // setItems(newItems);
         let newItems = list.map( item => item.id === newItem.id ? newItem : item);

@@ -52,7 +52,7 @@ export default function ElementList ({items, handleDelete, handleToggle}) {
                                                     <ListItemIcon>
                                                         <Checkbox
                                                             edge="start"
-                                                            checked={item.checked}
+                                                            checked={item.estado === 1}
                                                             // tabIndex={false}
                                                             sx={{
                                                                 color: '#064851',
@@ -61,10 +61,10 @@ export default function ElementList ({items, handleDelete, handleToggle}) {
                                                                 },
                                                             }}
                                                             disableRipple
-                                                            inputProps={{ 'aria-labelledby': item.checked }}
+                                                            inputProps={{ 'aria-labelledby': item.estado }}
                                                         />
                                                     </ListItemIcon>
-                                                    <ListItemText id={item.id} primary={item.value} style={item.checked ? { textDecoration: 'line-through'} : {textDecoration: 'none'}} />
+                                                    <ListItemText id={item.id} primary={item.valor} style={item.estado === 1 ? { textDecoration: 'line-through'} : {textDecoration: 'none'}} />
                                                 </ListItemButton>
                                             </ListItem>
                                         );
