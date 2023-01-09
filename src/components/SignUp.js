@@ -28,7 +28,7 @@ export default function SignUp() {
     const navigate = useNavigate();
     const [form, setForm ] = useState(initialForm);
     const [open, setOpen] = useState(false);
-    const [typeAlert, setTypeAlert] = useState("");
+    const [typeAlert, setTypeAlert] = useState("warning");
     const [message, setMessage] = useState("");
 
     const handleOpenAlert = (type, message) => {

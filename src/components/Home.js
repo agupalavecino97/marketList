@@ -3,6 +3,7 @@ import React, { useState, useEffect } from 'react';
 import Header from "./Header";
 import NewList from "./NewList";
 import SaveList from './SaveList';
+import ShowLists from './ShowLists'
 import Grid from '@mui/material/Grid';
 import Fab from '@mui/material/Fab';
 import LibraryAddIcon from '@mui/icons-material/LibraryAdd';
@@ -65,10 +66,12 @@ const Home = () => {
     const [openModal, setOpenModal] = useState(false);
     const [listData, setlistData ] = useState(initialListData);
     const [showLists, setShowLists] = useState(false);
+    const [lists, setLists] = useState(null);
     const [open, setOpen] = useState(false);
-    const [typeAlert, setTypeAlert] = useState("");
+    const [typeAlert, setTypeAlert] = useState("warning");
     const [message, setMessage] = useState("");
 
+    
     useEffect(() => {
         let authToken = localStorage.getItem('token');
         if (authToken !== null && authToken !== undefined) {
@@ -133,6 +136,52 @@ const Home = () => {
               console.error(err);
           }
     }
+
+    const handleGetLists = async () => {
+        setShowLists(true);
+        try {
+            axios.defaults.headers.common.Authorization = localStorage.getItem('token');
+            const res = await axios.get(APIs.LISTA);
+            if (res.data.error) {
+              handleOpenAlert('error', res.data.error);
+            } else {
+                if (res.data.data) {
+                    // let lists = .data;
+                    setLists( res.data.data );
+                } else {
+                    handleOpenAlert('error', 'Error en el servidor');                    
+                }
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
+    const handleSelectList = async (id) => {
+        setShowLists(false);
+    }
+
+    const handleDeleteList = async (id) => {
+        // setShowLists(false);
+        try {
+            axios.defaults.headers.common.Authorization = localStorage.getItem('token');
+            const res = await axios.delete(APIs.LISTA + '/'+ id);
+            if (res.data.error) {
+              handleOpenAlert('error', res.data.error);
+            } else {
+                if (res.data.message) {
+                    handleOpenAlert('success', res.data.message);                    
+                    let newData = lists.filter( el => el.id !== id);
+                    setLists( newData );
+                } else {
+                    handleOpenAlert('error', 'Error en el servidor');                    
+                }
+            }
+        } catch (error) {
+            console.error(error)
+        }
+    }
+
     return (
         <main style={{height: '100vh', background: '#F5F2EB'}}>
             <Header currentUser={currentUser} />
@@ -140,16 +189,20 @@ const Home = () => {
                 !showLists &&
                 <NewList list={currentList} setCurrentList={setCurrentList}/>
             }
+            {
+                showLists &&
+                <ShowLists lists={lists} handleSelectList={handleSelectList} handleDeleteList={handleDeleteList}/>
+            }
             <Grid item xs={12}>
                 {
-                    (currentList.length > 0 && currentUser !== '') &&
+                    (currentList.length > 0 && currentUser !== '' && !showLists) &&
                     <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleOpenModal}>
                         Guardar Lista <LibraryAddIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
                 { 
-                    currentUser !== '' && 
-                    <Fab sx={{ position: 'absolute', bottom: 16, left: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat}>
+                    (currentUser !== '' && !showLists) && 
+                    <Fab sx={{ position: 'absolute', bottom: 16, left: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleGetLists}>
                         Mis listas <ListAltSharpIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
