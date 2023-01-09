@@ -59,6 +59,12 @@ const ShowLists = ({lists, handleSelectList, handleDeleteList}) => {
         handleDeleteList(idSeleccionado);
         setIdSeleccionado(null);
     }
+
+    const formatDate = (date) => {
+        let d = date.split('T')[0].split('-');
+        return (d[2]+'/'+d[1]+'/'+d[0]) 
+    }
+
     return (
         <div>
         {   lists != null ? (
@@ -66,16 +72,17 @@ const ShowLists = ({lists, handleSelectList, handleDeleteList}) => {
                     <Stack sx={{ display: 'flex', alignContent: 'center', alignItems: 'center', marginTop: '2em'}} spacing={2}>
                         {
                         lists.map( (list) => (
-                            <Item id={list.id}>
+                            <Item key={list.id} id={list.id}>
                                 <Typography sx={{ fontSize: 28 }} color="text.primary" gutterBottom>
                                     {list.nombre}
                                 </Typography>
                                 <Typography sx={{ fontSize: 14}} color="text.secondary">
-                                    {list.fecha}
+                                    {formatDate(list.fecha)}
+                                    {/* {list.fecha} */}
                                 </Typography>
                                 <CardActions sx={{display: 'flex', justifyContent: 'center'}}>
                                     <Button variant="outlined" color="error" onClick={ () => handleOpenDialog(list.id) }> Eliminar</Button>
-                                    <Button variant="outlined" sx={styles.btn} onClick={ () => handleSelectList(list.id)}> Usar</Button>
+                                    <Button variant="outlined" sx={styles.btn} onClick={ () => handleSelectList(list)}> Usar</Button>
                                 </CardActions>
                             </Item>
                             )

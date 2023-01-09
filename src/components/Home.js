@@ -157,8 +157,26 @@ const Home = () => {
         }
     }
 
-    const handleSelectList = async (id) => {
-        setShowLists(false);
+    const handleSelectList = async (list) => {
+        try {
+            setlistData(list);
+            axios.defaults.headers.common.Authorization = localStorage.getItem('token');
+            const res = await axios.get(APIs.LISTA_DETALLE + '/'+ list.id);
+            if (res.data.error) {
+              handleOpenAlert('error', res.data.error);
+            } else {
+                if (res.data.data) {
+                    console.log(res.data.data);
+                    setCurrentList(res.data.data);       
+                    setShowLists(false);
+
+                } else {
+                    handleOpenAlert('error', 'Error en el servidor');                    
+                }
+            }
+        } catch (error) {
+            console.error(error)
+        }
     }
 
     const handleDeleteList = async (id) => {
@@ -182,6 +200,28 @@ const Home = () => {
         }
     }
 
+    const handleSaveList = async () => {
+        if (listData.id != null) {
+            try {
+                axios.defaults.headers.common.Authorization = localStorage.getItem('token');
+                const res = await axios.put(APIs.LISTA + '/' + listData.id, currentList);
+                if (res.data.error) {
+                  handleOpenAlert('error', res.data.error);
+                } else {
+                    if (res.data.message) {
+                        handleOpenAlert('success', res.data.message);                    
+                    } else {
+                        handleOpenAlert('error', 'Error en el servidor');                    
+                    }
+                }
+            } catch (error) {
+                console.error(error)
+            }
+        } else {
+            handleOpenModal();
+        }
+    }
+ 
     return (
         <main style={{height: '100vh', background: '#F5F2EB'}}>
             <Header currentUser={currentUser} />
@@ -196,7 +236,7 @@ const Home = () => {
             <Grid item xs={12}>
                 {
                     (currentList.length > 0 && currentUser !== '' && !showLists) &&
-                    <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleOpenModal}>
+                    <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleSaveList}>
                         Guardar Lista <LibraryAddIcon sx={{ ml: 1 }}/>
                     </Fab>
                 }
