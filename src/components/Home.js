@@ -70,6 +70,7 @@ const Home = () => {
     const [open, setOpen] = useState(false);
     const [typeAlert, setTypeAlert] = useState("warning");
     const [message, setMessage] = useState("");
+    const [idIemsDelete, setIdIemsDelete] = useState([]);
 
     
     useEffect(() => {
@@ -204,11 +205,17 @@ const Home = () => {
         if (listData.id != null) {
             try {
                 axios.defaults.headers.common.Authorization = localStorage.getItem('token');
-                const res = await axios.put(APIs.LISTA + '/' + listData.id, currentList);
+                let data = {
+                    items: currentList,
+                    idItemasDelete: idIemsDelete,
+                }
+                console.log(data)
+                const res = await axios.put(APIs.LISTA + '/' + listData.id, data);
                 if (res.data.error) {
                   handleOpenAlert('error', res.data.error);
                 } else {
                     if (res.data.message) {
+                        setIdIemsDelete([]);
                         handleOpenAlert('success', res.data.message);                    
                     } else {
                         handleOpenAlert('error', 'Error en el servidor');                    
@@ -227,7 +234,7 @@ const Home = () => {
             <Header currentUser={currentUser} />
             {
                 !showLists &&
-                <NewList list={currentList} setCurrentList={setCurrentList}/>
+                <NewList list={currentList} setCurrentList={setCurrentList} id_list={listData.id} idIemsDelete={idIemsDelete} setIdIemsDelete={setIdIemsDelete}/>
             }
             {
                 showLists &&
@@ -235,7 +242,7 @@ const Home = () => {
             }
             <Grid item xs={12}>
                 {
-                    (currentList.length > 0 && currentUser !== '' && !showLists) &&
+                    ((currentList.length > 0 || listData.id != null) && currentUser !== '' && !showLists) &&
                     <Fab sx={{ position: 'absolute', bottom: 16, right: 16}} variant="extended" aria-label='Add' style={styles.BtnFloat} onClick={handleSaveList}>
                         Guardar Lista <LibraryAddIcon sx={{ ml: 1 }}/>
                     </Fab>

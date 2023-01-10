@@ -15,7 +15,7 @@ import Avatar from '@mui/material/Avatar';
 // import TextField from '@mui/material/TextField';
 
 
-export default function NewList ({list, setCurrentList}) {
+export default function NewList ({list, setCurrentList, id_list, idIemsDelete, setIdIemsDelete}) {
     
    
     // const [items, setItems] = useState([]);
@@ -71,6 +71,9 @@ export default function NewList ({list, setCurrentList}) {
     };
 
     const handleDelete = (id) => {
+        if(id_list != null) {
+            setIdIemsDelete( idIemsDelete => [...idIemsDelete, id]);
+        }
         // let newData = items.filter( el => el.id !== id);
         // setItems(newData);
         let newData = list.filter( el => el.id !== id);
