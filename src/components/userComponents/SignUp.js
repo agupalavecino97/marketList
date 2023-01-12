@@ -1,7 +1,7 @@
 import * as React from 'react';
 import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -12,7 +12,7 @@ import Typography from '@mui/material/Typography';
 import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
-import { APIs } from '../helpers/apis';
+import { APIs } from '../../helpers/apis';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
@@ -30,6 +30,7 @@ export default function SignUp() {
     const [open, setOpen] = useState(false);
     const [typeAlert, setTypeAlert] = useState("warning");
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleOpenAlert = (type, message) => {
       setTypeAlert(type);
@@ -45,7 +46,7 @@ export default function SignUp() {
     };
 
     const handleSubmit = async () => {
-      
+      setLoading(true);
       if (!form.email || !form.password || !form.name) {
         handleOpenAlert('error', 'Datos incompletos');
         return;
@@ -57,6 +58,12 @@ export default function SignUp() {
         } else {
           if (res.data.data) {
             handleOpenAlert('success', 'Registro exitoso');
+            localStorage.setItem("token", res.data.data.accessToken);
+            localStorage.setItem("user", res.data.data.user);
+            setTimeout(() => {
+              setLoading(false);
+              navigate('/');
+            }, 1000);
           } else {
             handleOpenAlert('error', 'Error en el servidor');
           }
@@ -194,15 +201,17 @@ export default function SignUp() {
                   />
                 </Grid>
               </Grid>
-              <Button
+              <LoadingButton
                 type="button"
                 fullWidth
                 variant="contained"
                 sx={styles.btn}
                 onClick={handleSubmit}
+                endIcon={<LockOpenIcon />}
+                loading={loading}
               >
-                Registro
-              </Button>
+                <span>Registro</span>
+              </LoadingButton>
             <Grid container justifyContent="center">
                 <Link onClick={toLogin} variant="body2">
                   ¿Ya tienes una cuenta? Ingresar

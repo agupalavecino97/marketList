@@ -1,7 +1,7 @@
 import React from 'react';
 import { useState } from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
+import LoadingButton from '@mui/lab/LoadingButton';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import Link from '@mui/material/Link';
@@ -12,12 +12,10 @@ import Container from '@mui/material/Container';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import { useNavigate } from 'react-router-dom';
 import LoginIcon from '@mui/icons-material/Login';
-import { APIs } from '../helpers/apis';
+import { APIs } from '../../helpers/apis';
 import axios from 'axios';
 import Snackbar from '@mui/material/Snackbar';
 import Alert from '@mui/material/Alert';
-// import * as moment from "react-moment";
-
 const initialForm = {
   email: "",
   password: "",
@@ -30,6 +28,7 @@ const Login = () => {
     const [open, setOpen] = useState(false);
     const [typeAlert, setTypeAlert] = useState("warning");
     const [message, setMessage] = useState("");
+    const [loading, setLoading] = useState(false);
 
     const handleOpenAlert = (type, message) => {
       setTypeAlert(type);
@@ -45,8 +44,10 @@ const Login = () => {
     };
 
     const handleSubmit = async () => {
+      setLoading(true);
       if (!form.email || !form.password) {
         handleOpenAlert('error', 'Datos incompletos');
+        setLoading(false);
         return;
       }
       try {
@@ -60,17 +61,20 @@ const Login = () => {
             // const expiresAt = moment().add(res.data.data.expiresIn, 'second');
             // localStorage.setItem("EXPIRES_IN", JSON.stringify(expiresAt.valueOf()));
             localStorage.setItem("user", res.data.data.user);
-            navigate('/');
+            setTimeout(() => {
+              setLoading(false);
+              navigate('/');
+            }, 1000);
           } else {
             handleOpenAlert('error', 'Error en el servidor');
           }
         }
-        // if (res.data.token) {
-        //     localStorage.setItem('token', res.data.token);
-        //     this.setState({ redirectToDashboard: true });
-        // } else {
-        //     this.setState({ error: true });
-        // }
+        if (res.data.token) {
+            localStorage.setItem('token', res.data.token);
+            this.setState({ redirectToDashboard: true });
+        } else {
+            this.setState({ error: true });
+        }
       } catch (err) {
           console.error(err);
       }
@@ -181,15 +185,17 @@ const Login = () => {
                 value={form.password}
                 onChange={handleChange}
               />
-              <Button
+              <LoadingButton
                 type="button"
                 fullWidth
                 variant="contained"
                 sx={styles.btn}
                 onClick={handleSubmit}
+                endIcon={<LoginIcon />}
+                loading={loading}
               >
-                Ingresar
-              </Button>
+                <span>Ingresar</span>
+              </LoadingButton>
               <Grid container justifyContent="center"> 
                   <Link onClick={toRegister} variant="body2">
                     {"¿No tienes una cuenta? Registrate"}
