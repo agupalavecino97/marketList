@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { useNavigate } from 'react-router-dom';
 // components
 import Header from "./Header";
 import NewList from "./listComponents/NewList";
@@ -92,6 +93,8 @@ const Home = () => {
     setLoadingMain(false);
   }, []);
 
+  const navigate = useNavigate();
+
   useEffect(() => {
     startLoading();
     let authToken = localStorage.getItem("token");
@@ -109,7 +112,7 @@ const Home = () => {
     setTimeout(() => {
       stopLoading();
     }, 2000);
-  }, []); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez
+  }, [startLoading, stopLoading]); // cuando tenemos este segundo parametro vacio el useEfffect se ejecuta solo una vez
 
   const handleOpenAlert = (type, message) => {
     setTypeAlert(type);
@@ -151,8 +154,8 @@ const Home = () => {
         } else {
           if (res.data.data) {
             handleOpenAlert("success", "Lista guardada correctamente");
-            currentList.id = res.data.data;
-            setlistData({ currentList });
+            listData.id = res.data.data;
+            setlistData({ ...listData, id: res.data.data });
           } else {
             handleOpenAlert("error", "Error en el servidor");
           }
@@ -161,6 +164,8 @@ const Home = () => {
       setLoading(false);
     } catch (err) {
       console.error(err);
+      handleOpenAlert('error', err);
+      navigate('/');
     }
   };
 
@@ -185,6 +190,8 @@ const Home = () => {
       }
     } catch (error) {
       console.error(error);
+      handleOpenAlert('error', error);
+      navigate('/');
     }
   };
 
@@ -199,7 +206,6 @@ const Home = () => {
         handleOpenAlert("error", res.data.error);
       } else {
         if (res.data.data) {
-          console.log(res.data.data);
           setCurrentList(res.data.data);
           setShowLists(false);
         } else {
@@ -209,6 +215,8 @@ const Home = () => {
       setLoadingSelect(false);
     } catch (error) {
       console.error(error);
+      handleOpenAlert('error', error);
+      navigate('/');
     }
   };
 
@@ -236,11 +244,12 @@ const Home = () => {
       setLoadingDelete(false);
     } catch (error) {
       console.error(error);
+      handleOpenAlert('error', error);
+      navigate('/');
     }
   };
 
   const handleSaveList = async () => {
-    console.log(listData);
     if (listData.id != null) {
       setLoading(true);
       try {
@@ -250,7 +259,6 @@ const Home = () => {
           items: currentList,
           idItemasDelete: idIemsDelete,
         };
-        console.log(data);
         const res = await axios.put(APIs.LISTA + "/" + listData.id, data);
         if (res.data.error) {
           handleOpenAlert("error", res.data.error);
@@ -265,6 +273,8 @@ const Home = () => {
         setLoading(false);
       } catch (error) {
         console.error(error);
+        handleOpenAlert('error', error);
+        navigate('/');
       }
     } else {
       handleOpenModal();
@@ -299,6 +309,7 @@ const Home = () => {
       style={{
         height: "100vh",
         background: loadingMain ? "#064851" : "#F5F2EB",
+        overflow: 'scroll',
       }}
     >
       <Loader when={loadingMain} />
@@ -321,6 +332,7 @@ const Home = () => {
                 <ShowLists
                   lists={lists}
                   handleSelectList={handleSelectList}
+                  listData={listData}
                   handleDeleteList={handleDeleteList}
                   setShowLists={setShowLists}
                   loading={loadingSecondary}
@@ -335,6 +347,7 @@ const Home = () => {
               justifyContent="space-around"
               alignItems="center"
               xs={12}
+              item
               component="footer"
               sx={{ position: "fixed", bottom: "1em" }}
             >

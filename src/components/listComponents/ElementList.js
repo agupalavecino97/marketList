@@ -25,7 +25,7 @@ export default function ElementList({ items, handleDelete, handleToggle }) {
             marginTop: "1.2em",
           }}
         >
-          <List sx={{ bgcolor: "background.paper" }}>
+          <List sx={{ bgcolor: "background.paper", marginBottom: '3em' }}>
             <Grid container>
               {items.map((item) => {
                 return (

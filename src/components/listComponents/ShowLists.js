@@ -35,14 +35,12 @@ const styles = {
     borderColor: "#064851",
     "&:hover": {
       color: "#eee",
-      backgroundColor: "#064851",
       borderColor: "#064851",
       boxShadow: "none",
     },
     "&:active": {
       color: "#eee",
       boxShadow: "none",
-      backgroundColor: "#064851",
       borderColor: "#064851",
     },
     "&:focus": {
@@ -57,14 +55,12 @@ const styles = {
     borderColor: "#757575",
     "&:hover": {
       color: "#eee",
-      backgroundColor: "#757575",
       borderColor: "#757575",
       boxShadow: "none",
     },
     "&:active": {
       color: "#eee",
       boxShadow: "none",
-      backgroundColor: "#757575",
       borderColor: "#757575",
     },
     "&:focus": {
@@ -76,6 +72,7 @@ const ShowLists = ({
   lists,
   handleSelectList,
   handleDeleteList,
+  listData,
   setShowLists,
   loading,
   loadingDelete,
@@ -104,7 +101,7 @@ const ShowLists = ({
       <LoaderSecondary when={loading} />
       {!loading && (
         <React.Fragment>
-          <Grid xs={12}>
+          <Grid item xs={12}>
             <Button
               variant="outlined"
               startIcon={<ArrowBackOutlinedIcon />}
@@ -114,8 +111,7 @@ const ShowLists = ({
               Volver
             </Button>
           </Grid>
-
-          <Grid xs={12}>
+          <Grid item xs={12}>
             {lists.length > 0 ? (
               <Box sx={{ width: "100%" }}>
                 <Stack
@@ -148,20 +144,16 @@ const ShowLists = ({
                           onClick={() => handleOpenDialog(list.id)}
                         >
                           {" "}
-                          {!loadingDelete ? (
-                            <React.Fragment>
-                              Eliminar
-                              <DeleteIcon sx={{ ml: 1 }} />
-                            </React.Fragment>
+                          Eliminar
+                          {loadingDelete && idSeleccionado === list.id ? (
+                            <CircularProgress
+                              sx={{
+                                width: "1.6em !important",
+                                height: "1.6em !important",
+                              }}
+                            />
                           ) : (
-                            <Box sx={{ display: "flex" }}>
-                              <CircularProgress
-                                sx={{
-                                  width: "2em !important",
-                                  height: "2em !important",
-                                }}
-                              />
-                            </Box>
+                              <DeleteIcon sx={{ ml: 1 }} />
                           )}
                         </Button>
                         <Button
@@ -170,20 +162,16 @@ const ShowLists = ({
                           onClick={() => handleSelectList(list)}
                         >
                           {" "}
-                          {!loadingSelect ? (
-                            <React.Fragment>
-                              Usar
-                              <TaskAltIcon sx={{ ml: 1 }} />
-                            </React.Fragment>
-                          ) : (
-                            <Box sx={{ display: "flex" }}>
+                          Usar
+                          {(loadingSelect && listData.id) === list.id ? (
                               <CircularProgress
                                 sx={{
-                                  width: "2em !important",
-                                  height: "2em !important",
+                                  width: "1.6em !important",
+                                  height: "1.6em !important",
                                 }}
                               />
-                            </Box>
+                          ) : (
+                            <TaskAltIcon sx={{ ml: 1 }} />
                           )}
                         </Button>
                       </CardActions>

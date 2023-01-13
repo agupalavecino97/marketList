@@ -52,14 +52,15 @@ const Login = () => {
       }
       try {
         const res = await axios.post(APIs.LOGIN, form);
-        console.log(res);
         if (res.data.error) {
           handleOpenAlert('error', res.data.error);
+          setLoading(false);
         } else {
           if (res.data.data) {
             localStorage.setItem("token", res.data.data.accessToken);
             // const expiresAt = moment().add(res.data.data.expiresIn, 'second');
             // localStorage.setItem("EXPIRES_IN", JSON.stringify(expiresAt.valueOf()));
+            localStorage.setItem("user", res.data.data.user);
             localStorage.setItem("user", res.data.data.user);
             setTimeout(() => {
               setLoading(false);
@@ -67,16 +68,13 @@ const Login = () => {
             }, 1000);
           } else {
             handleOpenAlert('error', 'Error en el servidor');
+            setLoading(false);
           }
-        }
-        if (res.data.token) {
-            localStorage.setItem('token', res.data.token);
-            this.setState({ redirectToDashboard: true });
-        } else {
-            this.setState({ error: true });
         }
       } catch (err) {
           console.error(err);
+          handleOpenAlert('error', err);
+          navigate('/');
       }
     };
 

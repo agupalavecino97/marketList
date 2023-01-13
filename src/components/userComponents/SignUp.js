@@ -49,12 +49,14 @@ export default function SignUp() {
       setLoading(true);
       if (!form.email || !form.password || !form.name) {
         handleOpenAlert('error', 'Datos incompletos');
+        setLoading(false);
         return;
       }
       try {
         const res = await axios.post(APIs.REGISTRO, form);
         if (res.data.error) {
           handleOpenAlert('error', res.data.error);
+          setLoading(false);
         } else {
           if (res.data.data) {
             handleOpenAlert('success', 'Registro exitoso');
@@ -66,6 +68,7 @@ export default function SignUp() {
             }, 1000);
           } else {
             handleOpenAlert('error', 'Error en el servidor');
+            setLoading(false);
           }
         }
         // if (res.data.token) {
@@ -77,6 +80,8 @@ export default function SignUp() {
         // }
       } catch (err) {
           console.error(err);
+          handleOpenAlert('error', err);
+          navigate('/');
       }
     };
 
