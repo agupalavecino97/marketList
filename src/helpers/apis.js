@@ -1,4 +1,5 @@
-const SERVER_URL = 'http://localhost:3789';
+// const SERVER_URL = 'http://localhost:3789';
+const SERVER_URL = 'https://list-app-react-api.herokuapp.com/';
 
 export const APIs = {
     LOGIN: `${SERVER_URL}/api/users/login`,
